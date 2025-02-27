@@ -1,30 +1,59 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useState } from "react";
 import ReactFlow, {
   Background,
   Controls,
   type Connection,
   type Edge,
-  type Node
+  type Node,
+  addEdge,
+  useNodesState,
+  useEdgesState
 } from "reactflow";
 import "reactflow/dist/style.css";
 import { nodeTypes } from "./node-types";
+import { NodeCreationPanel } from "./node-creation-panel";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { transformToFlowNodes, transformToFlowEdges } from "@/lib/supply-chain";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
-export function SupplyChainEditor() {
+interface SupplyChainEditorProps {
+  onNodeSelect?: (nodeId: number) => void;
+}
+
+export function SupplyChainEditor({ onNodeSelect }: SupplyChainEditorProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
-  const { data: nodes = [] } = useQuery<Node[]>({
+  const { data: apiNodes = [] } = useQuery<Node[]>({
     queryKey: ["/api/nodes"],
     select: (data) => transformToFlowNodes(data)
   });
 
-  const { data: edges = [] } = useQuery<Edge[]>({
+  const { data: apiEdges = [] } = useQuery<Edge[]>({
     queryKey: ["/api/edges"],
     select: (data) => transformToFlowEdges(data)
+  });
+
+  // Keep local state in sync with API data
+  useState(() => {
+    setNodes(apiNodes);
+    setEdges(apiEdges);
+  }, [apiNodes, apiEdges]);
+
+  const createNodeMutation = useMutation({
+    mutationFn: async (node: { type: string, position: { x: number, y: number }, data: any }) => {
+      await apiRequest("POST", "/api/nodes", node);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/nodes"] });
+      toast({
+        title: "Success",
+        description: "Node created successfully"
+      });
+    }
   });
 
   const updateNodeMutation = useMutation({
@@ -46,10 +75,35 @@ export function SupplyChainEditor() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/edges"] });
+      toast({
+        title: "Success",
+        description: "Connection created successfully"
+      });
     }
   });
 
-  const onNodesChange = useCallback((changes: any) => {
+  const handleCreateNode = useCallback((type: string) => {
+    const position = {
+      x: Math.random() * 500,
+      y: Math.random() * 500
+    };
+
+    const nodeData = {
+      name: `New ${type}`,
+      location: 'Location',
+      capacity: 'Capacity',
+      region: 'Region',
+      market: 'Market'
+    };
+
+    createNodeMutation.mutate({
+      type,
+      position,
+      data: nodeData
+    });
+  }, [createNodeMutation]);
+
+  const handleNodesChange = useCallback((changes: any) => {
     const positionChange = changes.find((change: any) => change.type === "position");
     if (positionChange) {
       updateNodeMutation.mutate({
@@ -57,20 +111,31 @@ export function SupplyChainEditor() {
         position: positionChange.position
       });
     }
-  }, [updateNodeMutation]);
+    onNodesChange(changes);
+  }, [updateNodeMutation, onNodesChange]);
 
-  const onConnect = useCallback((connection: Connection) => {
-    addEdgeMutation.mutate(connection);
-  }, [addEdgeMutation]);
+  const handleConnect = useCallback((params: Connection) => {
+    if (params.source && params.target) {
+      addEdgeMutation.mutate(params);
+      setEdges((eds) => addEdge(params, eds));
+    }
+  }, [addEdgeMutation, setEdges]);
+
+  const handleNodeClick = useCallback((event: any, node: Node) => {
+    onNodeSelect?.(parseInt(node.id));
+  }, [onNodeSelect]);
 
   return (
-    <div className="w-full h-[80vh]">
+    <div className="w-full h-[80vh] relative border rounded-lg">
+      <NodeCreationPanel onCreateNode={handleCreateNode} />
       <ReactFlow
         nodes={nodes}
         edges={edges}
         nodeTypes={nodeTypes}
-        onNodesChange={onNodesChange}
-        onConnect={onConnect}
+        onNodesChange={handleNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={handleConnect}
+        onNodeClick={handleNodeClick}
         fitView
       >
         <Background />
