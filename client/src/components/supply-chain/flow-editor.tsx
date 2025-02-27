@@ -72,7 +72,6 @@ function SupplyChainEditorContent({ onNodeSelect }: SupplyChainEditorProps) {
       console.log('Drop coordinates:', { clientX, clientY });
       console.log('Container bounds:', bounds);
 
-      // Use a test position first
       const position = reactFlowInstance.screenToFlowPosition({
         x: clientX,
         y: clientY,
@@ -80,7 +79,6 @@ function SupplyChainEditorContent({ onNodeSelect }: SupplyChainEditorProps) {
 
       console.log('Calculated position:', position);
 
-      // Test with direct node creation first
       const newNode = {
         id: `test-${Date.now()}`,
         type,
@@ -96,13 +94,21 @@ function SupplyChainEditorContent({ onNodeSelect }: SupplyChainEditorProps) {
 
       console.log('Creating new node:', newNode);
       setNodes((nds) => nds.concat(newNode));
-
-      toast({
-        title: "Debug",
-        description: `Attempted to create node at x:${position.x}, y:${position.y}`
-      });
     },
-    [reactFlowInstance, setNodes, toast]
+    [reactFlowInstance, setNodes]
+  );
+
+  const onConnect = useCallback(
+    (params: Connection) => {
+      if (params.source && params.target) {
+        setEdges((eds) => addEdge(params, eds));
+        toast({
+          title: "Connected",
+          description: `Connected node ${params.source} to ${params.target}`
+        });
+      }
+    },
+    [setEdges, toast]
   );
 
   const handleNodeClick = useCallback((event: any, node: Node) => {
@@ -119,6 +125,7 @@ function SupplyChainEditorContent({ onNodeSelect }: SupplyChainEditorProps) {
           nodeTypes={nodeTypes}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
           onNodeClick={handleNodeClick}
           onInit={setReactFlowInstance}
           proOptions={{ hideAttribution: true }}
