@@ -2,10 +2,32 @@ import { type Node, type Edge } from "reactflow";
 import { type SupplyChainNode, type SupplyChainEdge } from "@shared/schema";
 
 export const NODE_TYPES = {
-  supplier: "Supplier",
-  manufacturer: "Manufacturer",
-  distributor: "Distributor",
-  retailer: "Retailer"
+  // Production
+  supplier: "Raw Material Supplier",
+  manufacturer: "Manufacturing Plant",
+  processor: "Processing Facility",
+
+  // Storage & Distribution
+  warehouse: "Warehouse",
+  distributor: "Distribution Center",
+  crossdock: "Cross-Dock Facility",
+
+  // Sales & Delivery
+  retailer: "Retail Store",
+  wholesaler: "Wholesale Center",
+  lastmile: "Last-Mile Hub",
+
+  // Special Facilities
+  coldchain: "Cold Storage Facility",
+  customs: "Customs Facility",
+  quality: "Quality Control Center"
+} as const;
+
+export const NODE_CATEGORIES = {
+  production: ["supplier", "manufacturer", "processor"],
+  storage: ["warehouse", "distributor", "crossdock"],
+  sales: ["retailer", "wholesaler", "lastmile"],
+  specialized: ["coldchain", "customs", "quality"]
 } as const;
 
 export function transformToFlowNodes(nodes: SupplyChainNode[]): Node[] {
