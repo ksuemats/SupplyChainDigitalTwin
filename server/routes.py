@@ -34,6 +34,18 @@ async def create_edge(edge: Edge):
     edges.append(edge)
     return edge
 
+@router.delete("/nodes/{node_id}")
+async def delete_node(node_id: int):
+    global nodes
+    nodes = [n for n in nodes if n.id != node_id]
+    return {"status": "success"}
+
+@router.delete("/edges/{edge_id}")
+async def delete_edge(edge_id: int):
+    global edges
+    edges = [e for e in edges if e.id != edge_id]
+    return {"status": "success"}
+
 @router.post("/simulate-disaster", response_model=SimulationResponse)
 async def simulate_disaster(simulation: DisasterSimulation):
     # Placeholder simulation logic until AI models are integrated
@@ -53,7 +65,7 @@ async def assess_node_risk(node_id: int):
     node = next((n for n in nodes if n.id == node_id), None)
     if not node:
         raise HTTPException(status_code=404, detail="Node not found")
-    
+
     # Placeholder risk assessment until AI models are integrated
     return RiskAssessment(
         nodeId=node_id,
