@@ -22,7 +22,7 @@ interface SupplyChainEditorProps {
   onNodeSelect?: (nodeId: number) => void;
 }
 
-function SupplyChainEditorContent({ onNodeSelect }: SupplyChainEditorProps) {
+export function SupplyChainEditorContent({ onNodeSelect }: SupplyChainEditorProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
@@ -105,31 +105,44 @@ function SupplyChainEditorContent({ onNodeSelect }: SupplyChainEditorProps) {
 
   return (
     <div className="absolute inset-0">
-      <div className="h-full w-full" onDragOver={onDragOver} onDrop={onDrop}>
-        {nodes.length === 0 && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <p className="text-muted-foreground text-sm">
-              Drag and drop components here to build your supply chain network
-            </p>
-          </div>
-        )}
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          nodeTypes={nodeTypes}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          onNodeClick={handleNodeClick}
-          onInit={setReactFlowInstance}
-          proOptions={{ hideAttribution: true }}
-          className="w-full h-full"
-          fitView
-        >
-          <Background />
-          <Controls />
-        </ReactFlow>
-      </div>
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        nodeTypes={nodeTypes}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        onNodeClick={handleNodeClick}
+        onInit={setReactFlowInstance}
+        proOptions={{ hideAttribution: true }}
+        fitView
+      >
+        <Background />
+        <Controls />
+      </ReactFlow>
+
+      {nodes.length === 0 && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <p className="text-muted-foreground text-sm">
+            Drag and drop components here to build your supply chain network
+          </p>
+        </div>
+      )}
+
+      <div 
+        className="absolute inset-0 pointer-events-none"
+        onDragOver={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          (e.target as HTMLDivElement).classList.add('drag-over');
+        }}
+        onDragLeave={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          (e.target as HTMLDivElement).classList.remove('drag-over');
+        }}
+        onDrop={onDrop}
+      />
     </div>
   );
 }

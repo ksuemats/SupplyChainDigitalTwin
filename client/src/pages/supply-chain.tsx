@@ -7,22 +7,22 @@ export default function SupplyChain() {
   const [selectedNode, setSelectedNode] = useState<number | null>(null);
 
   return (
-    <div className="h-screen w-full overflow-hidden bg-background/95">
-      <div className="flex items-center justify-between px-6 py-3">
+    <div className="h-screen flex flex-col bg-background/95">
+      <div className="flex items-center justify-between px-6 py-3 border-b">
         <h1 className="text-2xl font-semibold text-foreground">Supply Chain Model</h1>
       </div>
 
-      <div className="grid grid-cols-[240px_1fr_280px] h-[calc(100vh-4rem)]">
-        <div className="border-r border-border/50 px-4">
+      <div className="flex-1 flex">
+        <div className="w-60 border-r">
           {/* Sidebar content is handled by the layout component */}
         </div>
 
-        <div className="h-full w-full relative">
+        <div className="flex-1 relative">
           <SupplyChainEditor onNodeSelect={setSelectedNode} />
         </div>
 
-        <div className="border-l border-border/50 px-4 overflow-y-auto">
-          <div className="space-y-4 py-4">
+        <div className="w-72 border-l overflow-y-auto">
+          <div className="p-4 space-y-4">
             <DisasterSimulation />
             {selectedNode && <RiskAnalysis nodeId={selectedNode} />}
           </div>
