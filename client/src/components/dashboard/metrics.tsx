@@ -1,5 +1,5 @@
+import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useQuery } from "@tanstack/react-query";
 import {
   LineChart,
   Line,
@@ -9,53 +9,119 @@ import {
   Tooltip,
   ResponsiveContainer
 } from "recharts";
+import { useWebSocket, useMetricsStore } from "@/lib/websocket";
+import { 
+  Activity,
+  AlertTriangle,
+  Box,
+  Clock,
+  TrendingUp,
+  AlertCircle 
+} from "lucide-react";
 
 export function DashboardMetrics() {
-  const { data: nodes = [] } = useQuery({
-    queryKey: ["/api/nodes"]
-  });
+  const { connect, disconnect } = useWebSocket();
+  const metrics = useMetricsStore((state) => state.metrics);
 
-  const { data: riskAnalyses = [] } = useQuery({
-    queryKey: ["/api/risk-analysis"]
-  });
-
-  const nodeTypes = nodes.reduce((acc: Record<string, number>, node: any) => {
-    acc[node.type] = (acc[node.type] || 0) + 1;
-    return acc;
-  }, {});
-
-  const averageRiskScore = riskAnalyses.length
-    ? riskAnalyses.reduce((sum: number, analysis: any) => sum + analysis.riskScore, 0) / riskAnalyses.length
-    : 0;
+  useEffect(() => {
+    connect();
+    return () => disconnect();
+  }, [connect, disconnect]);
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Total Nodes</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{nodes.length}</div>
-        </CardContent>
-      </Card>
+    <div className="space-y-6">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Active Nodes</CardTitle>
+            <Activity className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{metrics.activeNodes}</div>
+            <p className="text-xs text-muted-foreground">
+              of {metrics.totalNodes} total nodes
+            </p>
+          </CardContent>
+        </Card>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Average Risk Score</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{averageRiskScore.toFixed(1)}</div>
-        </CardContent>
-      </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Risk Score</CardTitle>
+            <AlertTriangle className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {metrics.averageRiskScore.toFixed(1)}%
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Average across all nodes
+            </p>
+          </CardContent>
+        </Card>
 
-      <Card className="col-span-2">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Throughput</CardTitle>
+            <Box className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{metrics.throughput}</div>
+            <p className="text-xs text-muted-foreground">
+              Units processed per hour
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Bottlenecks</CardTitle>
+            <AlertCircle className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{metrics.bottlenecks}</div>
+            <p className="text-xs text-muted-foreground">
+              Current congestion points
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Delayed Shipments</CardTitle>
+            <Clock className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{metrics.delayedShipments}</div>
+            <p className="text-xs text-muted-foreground">
+              Shipments behind schedule
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Network Health</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {Math.max(0, 100 - metrics.averageRiskScore).toFixed(1)}%
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Overall system status
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card className="col-span-3">
         <CardHeader>
           <CardTitle>Risk Trend</CardTitle>
         </CardHeader>
         <CardContent className="h-[200px]">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
-              data={riskAnalyses}
+              data={metrics.riskTrend}
               margin={{
                 top: 5,
                 right: 10,
@@ -65,11 +131,14 @@ export function DashboardMetrics() {
             >
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis
-                dataKey="createdAt"
-                tickFormatter={(value) => new Date(value).toLocaleDateString()}
+                dataKey="timestamp"
+                tickFormatter={(value) => new Date(value).toLocaleTimeString()}
               />
-              <YAxis />
-              <Tooltip />
+              <YAxis domain={[0, 100]} />
+              <Tooltip
+                labelFormatter={(value) => new Date(value).toLocaleString()}
+                formatter={(value: number) => [`${value.toFixed(1)}%`, "Risk Score"]}
+              />
               <Line
                 type="monotone"
                 dataKey="riskScore"
