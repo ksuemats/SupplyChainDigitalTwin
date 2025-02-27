@@ -22,7 +22,7 @@ export default function SupplyChain() {
         </div>
 
         <div className="space-y-6">
-          <DisasterSimulation nodeId={selectedNode || 0} />
+          <DisasterSimulation />
           {selectedNode && <RiskAnalysis nodeId={selectedNode} />}
         </div>
       </div>
