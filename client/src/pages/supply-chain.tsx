@@ -12,7 +12,7 @@ export default function SupplyChain() {
         <h1 className="text-2xl font-semibold text-foreground">Supply Chain Model</h1>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr_300px] gap-6 h-[calc(100vh-8rem)]">
+      <div className="grid grid-cols-[280px_1fr_300px] gap-6 h-[calc(100vh-8rem)]">
         <div className="border-r border-border/50 pr-6">
           {/* Sidebar content is handled by the layout component */}
         </div>
@@ -21,7 +21,7 @@ export default function SupplyChain() {
           <SupplyChainEditor onNodeSelect={setSelectedNode} />
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-6 border-l border-border/50 pl-6">
           <DisasterSimulation />
           {selectedNode && <RiskAnalysis nodeId={selectedNode} />}
         </div>
