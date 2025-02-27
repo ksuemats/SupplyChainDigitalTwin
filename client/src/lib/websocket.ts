@@ -12,19 +12,29 @@ export const useWebSocket = create<WebSocketStore>((set) => ({
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:"
     const wsUrl = `${protocol}//${window.location.host}/ws`
     const socket = new WebSocket(wsUrl)
-    
+
     socket.onopen = () => {
       console.log('WebSocket Connected')
     }
-    
+
+    socket.onmessage = (event) => {
+      console.log('WebSocket Message Received:', event.data)
+      try {
+        const data = JSON.parse(event.data)
+        useMetricsStore.getState().updateMetrics(data)
+      } catch (error) {
+        console.error('Error processing WebSocket message:', error)
+      }
+    }
+
     socket.onerror = (error) => {
       console.error('WebSocket Error:', error)
     }
-    
+
     socket.onclose = () => {
       console.log('WebSocket Disconnected')
     }
-    
+
     set({ socket })
   },
   disconnect: () => {
@@ -61,7 +71,10 @@ export const useMetricsStore = create<MetricsStore>((set) => ({
     delayedShipments: 0,
     riskTrend: []
   },
-  updateMetrics: (data) => set((state) => ({
-    metrics: { ...state.metrics, ...data }
-  }))
+  updateMetrics: (data) => {
+    console.log('Updating metrics with:', data)
+    set((state) => ({
+      metrics: { ...state.metrics, ...data }
+    }))
+  }
 }))
