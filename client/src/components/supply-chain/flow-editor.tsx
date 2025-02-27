@@ -104,8 +104,8 @@ function SupplyChainEditorContent({ onNodeSelect }: SupplyChainEditorProps) {
   }, [onNodeSelect]);
 
   return (
-    <div className="absolute inset-0 rounded-lg bg-background/50 shadow-sm overflow-hidden">
-      <div className="absolute inset-0" onDragOver={onDragOver} onDrop={onDrop}>
+    <div className="absolute inset-0">
+      <div className="h-full w-full" onDragOver={onDragOver} onDrop={onDrop}>
         {nodes.length === 0 && (
           <div className="absolute inset-0 flex items-center justify-center">
             <p className="text-muted-foreground text-sm">
@@ -123,7 +123,7 @@ function SupplyChainEditorContent({ onNodeSelect }: SupplyChainEditorProps) {
           onNodeClick={handleNodeClick}
           onInit={setReactFlowInstance}
           proOptions={{ hideAttribution: true }}
-          className="h-full"
+          className="w-full h-full"
           fitView
         >
           <Background />
