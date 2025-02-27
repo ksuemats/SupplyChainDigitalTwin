@@ -1,6 +1,5 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 from typing import List
 import asyncio
 import json
@@ -15,7 +14,7 @@ app = FastAPI(title="SupplyTwin API")
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:5000"],  # Allow the frontend server
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -110,9 +109,6 @@ async def root():
 async def health_check():
     return {"status": "healthy"}
 
-# Mount static files for frontend
-app.mount("/", StaticFiles(directory="dist", html=True), name="static")
-
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=5000)
+    uvicorn.run(app, host="0.0.0.0", port=8000)
