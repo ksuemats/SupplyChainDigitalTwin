@@ -27,7 +27,7 @@ export function DisasterSimulation({ nodeId }: DisasterSimulationProps) {
     mutationFn: async () => {
       if (!selectedDisaster) return;
       const res = await apiRequest(
-        "POST",
+        "POST", 
         `/api/nodes/${nodeId}/simulate-disaster`,
         { disasterType: selectedDisaster }
       );
