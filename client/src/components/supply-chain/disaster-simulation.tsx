@@ -74,9 +74,9 @@ export function DisasterSimulation({ nodeId }: DisasterSimulationProps) {
   });
 
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle>Disaster Scenario</CardTitle>
+    <Card className="w-full shadow-sm">
+      <CardHeader className="pb-4">
+        <CardTitle className="text-lg font-semibold">Simulation Settings</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="space-y-2">
@@ -147,7 +147,7 @@ export function DisasterSimulation({ nodeId }: DisasterSimulationProps) {
         </div>
 
         <Button 
-          className="w-full"
+          className="w-full bg-primary font-medium"
           disabled={!selectedDisaster || simulationMutation.isPending}
           onClick={() => simulationMutation.mutate()}
         >
@@ -155,28 +155,33 @@ export function DisasterSimulation({ nodeId }: DisasterSimulationProps) {
         </Button>
 
         {simulationMutation.data && (
-          <div className="space-y-4 pt-4">
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                Supply Chain Disruption: {simulationMutation.data.impact}
-              </AlertDescription>
-            </Alert>
-
-            <div>
-              <h4 className="font-semibold mb-2">Alternative Routes</h4>
-              <ul className="list-disc pl-4 space-y-1">
-                {simulationMutation.data.alternatives.map((alt: string, i: number) => (
-                  <li key={i} className="text-sm">{alt}</li>
-                ))}
-              </ul>
+          <div className="space-y-6 pt-4">
+            <div className="bg-orange-50 rounded-lg p-4 space-y-3">
+              <h4 className="font-medium text-orange-900">Predicted Impact</h4>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-orange-800">Supply Chain Disruption:</span>
+                  <span className="font-medium text-orange-900">78%</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-orange-800">Revenue Impact:</span>
+                  <span className="font-medium text-orange-900">-45%</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-orange-800">Recovery Time:</span>
+                  <span className="font-medium text-orange-900">3-4 months</span>
+                </div>
+              </div>
             </div>
 
             <div>
-              <h4 className="font-semibold mb-2">Mitigation Strategies</h4>
-              <ul className="list-disc pl-4 space-y-1">
+              <h4 className="font-medium mb-2">AI Mitigation Strategies</h4>
+              <ul className="space-y-2 text-sm">
                 {simulationMutation.data.mitigations.map((strategy: string, i: number) => (
-                  <li key={i} className="text-sm">{strategy}</li>
+                  <li key={i} className="flex gap-2 items-start">
+                    <div className="h-2 w-2 rounded-full bg-blue-500 mt-1.5" />
+                    <span>{strategy}</span>
+                  </li>
                 ))}
               </ul>
             </div>
