@@ -24,7 +24,7 @@ export function NodeCreationPanel() {
           <Button
             key={type}
             variant="outline"
-            className="justify-start gap-2 cursor-grab"
+            className="justify-start gap-2 cursor-grab active:cursor-grabbing"
             draggable
             onDragStart={(e) => onDragStart(e, type)}
           >

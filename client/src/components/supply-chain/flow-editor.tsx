@@ -1,4 +1,4 @@
-import { useCallback, useState, DragEvent } from "react";
+import { useCallback, useState, DragEvent, useEffect } from "react";
 import ReactFlow, {
   Background,
   Controls,
@@ -40,7 +40,7 @@ function SupplyChainEditorContent({ onNodeSelect }: SupplyChainEditorProps) {
   });
 
   // Keep local state in sync with API data
-  useState(() => {
+  useEffect(() => {
     setNodes(apiNodes);
     setEdges(apiEdges);
   }, [apiNodes, apiEdges]);
@@ -144,7 +144,7 @@ function SupplyChainEditorContent({ onNodeSelect }: SupplyChainEditorProps) {
   }, [onNodeSelect]);
 
   return (
-    <div className="w-full h-[80vh] relative border rounded-lg" >
+    <div className="w-full h-[80vh] relative border rounded-lg bg-background" >
       <NodeCreationPanel />
       <ReactFlow
         nodes={nodes}
@@ -157,6 +157,7 @@ function SupplyChainEditorContent({ onNodeSelect }: SupplyChainEditorProps) {
         onDragOver={onDragOver}
         onDrop={onDrop}
         onInit={setReactFlowInstance}
+        proOptions={{ hideAttribution: true }}
         fitView
       >
         <Background />
