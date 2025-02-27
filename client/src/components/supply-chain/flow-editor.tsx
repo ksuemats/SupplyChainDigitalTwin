@@ -87,12 +87,14 @@ function SupplyChainEditorContent({ onNodeSelect }: SupplyChainEditorProps) {
 
   const onDragOver = useCallback((event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
+    event.stopPropagation();
     event.dataTransfer.dropEffect = 'move';
   }, []);
 
   const onDrop = useCallback(
     (event: DragEvent<HTMLDivElement>) => {
       event.preventDefault();
+      event.stopPropagation();
 
       if (!reactFlowInstance) return;
 
@@ -100,7 +102,7 @@ function SupplyChainEditorContent({ onNodeSelect }: SupplyChainEditorProps) {
       if (!type) return;
 
       const bounds = event.currentTarget.getBoundingClientRect();
-      const position = reactFlowInstance.project({
+      const position = reactFlowInstance.screenToFlowPosition({
         x: event.clientX - bounds.left,
         y: event.clientY - bounds.top,
       });
@@ -147,7 +149,7 @@ function SupplyChainEditorContent({ onNodeSelect }: SupplyChainEditorProps) {
   return (
     <div className="w-full h-[80vh] relative border rounded-lg bg-background">
       <NodeCreationPanel />
-      <div className="absolute inset-0">
+      <div className="absolute inset-0" onDragOver={onDragOver} onDrop={onDrop}>
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -156,8 +158,6 @@ function SupplyChainEditorContent({ onNodeSelect }: SupplyChainEditorProps) {
           onEdgesChange={onEdgesChange}
           onConnect={handleConnect}
           onNodeClick={handleNodeClick}
-          onDragOver={onDragOver}
-          onDrop={onDrop}
           onInit={setReactFlowInstance}
           proOptions={{ hideAttribution: true }}
           fitView
