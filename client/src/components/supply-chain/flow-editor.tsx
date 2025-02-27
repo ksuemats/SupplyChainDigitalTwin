@@ -7,7 +7,8 @@ import ReactFlow, {
   type Node,
   addEdge,
   useNodesState,
-  useEdgesState
+  useEdgesState,
+  ReactFlowProvider
 } from "reactflow";
 import "reactflow/dist/style.css";
 import { nodeTypes } from "./node-types";
@@ -21,7 +22,7 @@ interface SupplyChainEditorProps {
   onNodeSelect?: (nodeId: number) => void;
 }
 
-export function SupplyChainEditor({ onNodeSelect }: SupplyChainEditorProps) {
+function SupplyChainEditorContent({ onNodeSelect }: SupplyChainEditorProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
@@ -97,9 +98,10 @@ export function SupplyChainEditor({ onNodeSelect }: SupplyChainEditorProps) {
       const type = event.dataTransfer.getData('application/reactflow');
       if (!type) return;
 
-      const position = reactFlowInstance.screenToFlowPosition({
-        x: event.clientX,
-        y: event.clientY,
+      const bounds = event.currentTarget.getBoundingClientRect();
+      const position = reactFlowInstance.project({
+        x: event.clientX - bounds.left,
+        y: event.clientY - bounds.top,
       });
 
       const nodeData = {
@@ -142,7 +144,7 @@ export function SupplyChainEditor({ onNodeSelect }: SupplyChainEditorProps) {
   }, [onNodeSelect]);
 
   return (
-    <div className="w-full h-[80vh] relative border rounded-lg">
+    <div className="w-full h-[80vh] relative border rounded-lg" >
       <NodeCreationPanel />
       <ReactFlow
         nodes={nodes}
@@ -161,5 +163,14 @@ export function SupplyChainEditor({ onNodeSelect }: SupplyChainEditorProps) {
         <Controls />
       </ReactFlow>
     </div>
+  );
+}
+
+// Wrap the editor with ReactFlowProvider
+export function SupplyChainEditor(props: SupplyChainEditorProps) {
+  return (
+    <ReactFlowProvider>
+      <SupplyChainEditorContent {...props} />
+    </ReactFlowProvider>
   );
 }
