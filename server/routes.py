@@ -4,90 +4,179 @@ from .models import (
     Node, Edge, DisasterSimulation, RiskAssessment,
     SimulationResponse, RiskFactor
 )
+from .database import Neo4jConnection
 
 router = APIRouter()
-
-# In-memory storage until Neo4j is configured
-nodes: List[Node] = []
-edges: List[Edge] = []
-next_node_id = 1
-next_edge_id = 1
 
 @router.get("/nodes", response_model=List[Node])
 async def get_nodes():
     """Get all supply chain nodes"""
-    return nodes
+    db = Neo4jConnection.get_instance()
+    session = db.get_session()
+
+    try:
+        result = session.run("MATCH (n:Node) RETURN n")
+        nodes = []
+        for record in result:
+            node = record["n"]
+            nodes.append(Node(
+                id=node.id,
+                type=node["type"],
+                name=node["name"],
+                position=node["position"],
+                data=node["data"]
+            ))
+        return nodes
+    finally:
+        session.close()
 
 @router.post("/nodes", response_model=Node, status_code=status.HTTP_201_CREATED)
 async def create_node(node: Node):
     """Create a new supply chain node"""
-    global next_node_id
+    db = Neo4jConnection.get_instance()
+    session = db.get_session()
+
     try:
-        node.id = next_node_id
-        next_node_id += 1
-        nodes.append(node)
-        return node
+        result = session.run(
+            """
+            CREATE (n:Node {
+                type: $type,
+                name: $name,
+                position: $position,
+                data: $data
+            })
+            RETURN n
+            """,
+            {
+                "type": node.type,
+                "name": node.name,
+                "position": node.position,
+                "data": node.data
+            }
+        )
+        created_node = result.single()["n"]
+        return Node(
+            id=created_node.id,
+            type=created_node["type"],
+            name=created_node["name"],
+            position=created_node["position"],
+            data=created_node["data"]
+        )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e)
         )
+    finally:
+        session.close()
 
 @router.get("/edges", response_model=List[Edge])
 async def get_edges():
     """Get all supply chain edges"""
-    return edges
+    db = Neo4jConnection.get_instance()
+    session = db.get_session()
+
+    try:
+        result = session.run(
+            """
+            MATCH (source:Node)-[r:CONNECTS]->(target:Node)
+            RETURN r, source.id as source_id, target.id as target_id
+            """
+        )
+        edges = []
+        for record in result:
+            rel = record["r"]
+            edges.append(Edge(
+                id=rel.id,
+                source=str(record["source_id"]),
+                target=str(record["target_id"]),
+                data=rel["data"]
+            ))
+        return edges
+    finally:
+        session.close()
 
 @router.post("/edges", response_model=Edge, status_code=status.HTTP_201_CREATED)
 async def create_edge(edge: Edge):
     """Create a new supply chain edge"""
-    global next_edge_id
-    try:
-        # Validate that source and target nodes exist
-        source_node = next((n for n in nodes if str(n.id) == edge.source), None)
-        target_node = next((n for n in nodes if str(n.id) == edge.target), None)
+    db = Neo4jConnection.get_instance()
+    session = db.get_session()
 
-        if not source_node or not target_node:
+    try:
+        result = session.run(
+            """
+            MATCH (source:Node), (target:Node)
+            WHERE source.id = $source AND target.id = $target
+            CREATE (source)-[r:CONNECTS {data: $data}]->(target)
+            RETURN r, source.id as source_id, target.id as target_id
+            """,
+            {
+                "source": edge.source,
+                "target": edge.target,
+                "data": edge.data
+            }
+        )
+        if not result.peek():
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Source or target node not found"
             )
 
-        edge.id = next_edge_id
-        next_edge_id += 1
-        edges.append(edge)
-        return edge
-    except HTTPException as he:
-        raise he
+        record = result.single()
+        return Edge(
+            id=record["r"].id,
+            source=str(record["source_id"]),
+            target=str(record["target_id"]),
+            data=record["r"]["data"]
+        )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e)
         )
+    finally:
+        session.close()
 
 @router.delete("/nodes/{node_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_node(node_id: int):
     """Delete a supply chain node"""
-    global nodes
-    original_length = len(nodes)
-    nodes = [n for n in nodes if n.id != node_id]
-    if len(nodes) == original_length:
+    db = Neo4jConnection.get_instance()
+    session = db.get_session()
+    try:
+        result = session.run(f"MATCH (n:Node) WHERE ID(n) = {node_id} DETACH DELETE n")
+        if result.summary().counters.nodes_deleted == 0:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Node not found"
+            )
+    except Exception as e:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Node not found"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
         )
+    finally:
+        session.close()
+
 
 @router.delete("/edges/{edge_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_edge(edge_id: int):
     """Delete a supply chain edge"""
-    global edges
-    original_length = len(edges)
-    edges = [e for e in edges if e.id != edge_id]
-    if len(edges) == original_length:
+    db = Neo4jConnection.get_instance()
+    session = db.get_session()
+    try:
+        result = session.run(f"MATCH ()-[r:CONNECTS]->() WHERE ID(r) = {edge_id} DELETE r")
+        if result.summary().counters.relationships_deleted == 0:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Edge not found"
+            )
+    except Exception as e:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Edge not found"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
         )
+    finally:
+        session.close()
 
 @router.post("/simulate-disaster", response_model=SimulationResponse)
 async def simulate_disaster(simulation: DisasterSimulation):
@@ -113,14 +202,16 @@ async def simulate_disaster(simulation: DisasterSimulation):
 @router.post("/nodes/{node_id}/risk-assessment", response_model=RiskAssessment)
 async def assess_node_risk(node_id: int):
     """Assess risk for a specific supply chain node"""
-    node = next((n for n in nodes if n.id == node_id), None)
-    if not node:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Node not found"
-        )
-
+    db = Neo4jConnection.get_instance()
+    session = db.get_session()
     try:
+        result = session.run(f"MATCH (n:Node) WHERE ID(n) = {node_id} RETURN n")
+        node = result.single()
+        if not node:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Node not found"
+            )
         # Placeholder risk assessment until AI models are integrated
         return RiskAssessment(
             nodeId=node_id,
@@ -144,3 +235,5 @@ async def assess_node_risk(node_id: int):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(e)
         )
+    finally:
+        session.close()

@@ -6,7 +6,9 @@ import json
 from datetime import datetime, timedelta
 import math
 import random
+import os
 
+from .database import Neo4jConnection
 from .routes import router
 
 app = FastAPI(title="SupplyTwin API")
@@ -19,6 +21,22 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.on_event("startup")
+async def startup_event():
+    # Initialize Neo4j connection
+    db = Neo4jConnection.get_instance()
+    db.connect(
+        uri=os.environ['NEO4J_URI'],
+        user=os.environ['NEO4J_USER'],
+        password=os.environ['NEO4J_PASSWORD']
+    )
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    # Close Neo4j connection
+    db = Neo4jConnection.get_instance()
+    db.close()
 
 # Include API routes
 app.include_router(router, prefix="/api")
