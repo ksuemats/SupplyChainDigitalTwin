@@ -40,107 +40,70 @@ function SupplyChainEditorContent({ onNodeSelect }: SupplyChainEditorProps) {
     select: (data) => transformToFlowEdges(data)
   });
 
-  // Keep local state in sync with API data
   useEffect(() => {
     setNodes(apiNodes);
     setEdges(apiEdges);
   }, [apiNodes, apiEdges, setNodes, setEdges]);
 
-  const createNodeMutation = useMutation({
-    mutationFn: async (node: { type: string, position: { x: number, y: number }, data: any }) => {
-      await apiRequest("POST", "/api/nodes", node);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/nodes"] });
-      toast({
-        title: "Success",
-        description: "Node created successfully"
-      });
-    }
-  });
-
-  const updateNodeMutation = useMutation({
-    mutationFn: async ({ id, position }: { id: string, position: { x: number, y: number }}) => {
-      await apiRequest("PATCH", `/api/nodes/${id}`, { position });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/nodes"] });
-    }
-  });
-
-  const addEdgeMutation = useMutation({
-    mutationFn: async (connection: Connection) => {
-      await apiRequest("POST", "/api/edges", {
-        source: connection.source,
-        target: connection.target,
-        data: {}
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/edges"] });
-      toast({
-        title: "Success",
-        description: "Connection created successfully"
-      });
-    }
-  });
-
   const onDragOver = useCallback((event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
-    event.stopPropagation();
     event.dataTransfer.dropEffect = 'move';
   }, []);
 
   const onDrop = useCallback(
     (event: DragEvent<HTMLDivElement>) => {
       event.preventDefault();
-      event.stopPropagation();
 
-      if (!reactFlowInstance) return;
+      if (!reactFlowInstance) {
+        console.log('No flow instance available');
+        return;
+      }
 
       const type = event.dataTransfer.getData('application/reactflow');
-      if (!type) return;
+      if (!type) {
+        console.log('No node type data found');
+        return;
+      }
 
       const bounds = event.currentTarget.getBoundingClientRect();
+      const clientX = event.clientX - bounds.left;
+      const clientY = event.clientY - bounds.top;
+
+      console.log('Drop coordinates:', { clientX, clientY });
+      console.log('Container bounds:', bounds);
+
+      // Use a test position first
       const position = reactFlowInstance.screenToFlowPosition({
-        x: event.clientX - bounds.left,
-        y: event.clientY - bounds.top,
+        x: clientX,
+        y: clientY,
       });
 
-      const nodeData = {
-        name: `New ${type}`,
-        location: 'Location',
-        capacity: 'Capacity',
-        region: 'Region',
-        market: 'Market'
-      };
+      console.log('Calculated position:', position);
 
-      createNodeMutation.mutate({
+      // Test with direct node creation first
+      const newNode = {
+        id: `test-${Date.now()}`,
         type,
         position,
-        data: nodeData
+        data: {
+          name: `Test ${type}`,
+          location: 'Test Location',
+          capacity: 'Test Capacity',
+          region: 'Test Region',
+          market: 'Test Market'
+        }
+      };
+
+      console.log('Creating new node:', newNode);
+      setNodes((nds) => nds.concat(newNode));
+
+      toast({
+        title: "Debug",
+        description: `Attempted to create node at x:${position.x}, y:${position.y}`
       });
     },
-    [reactFlowInstance, createNodeMutation]
+    [reactFlowInstance, setNodes, toast]
   );
-
-  const handleNodesChange = useCallback((changes: any) => {
-    const positionChange = changes.find((change: any) => change.type === "position");
-    if (positionChange) {
-      updateNodeMutation.mutate({
-        id: positionChange.id,
-        position: positionChange.position
-      });
-    }
-    onNodesChange(changes);
-  }, [updateNodeMutation, onNodesChange]);
-
-  const handleConnect = useCallback((params: Connection) => {
-    if (params.source && params.target) {
-      addEdgeMutation.mutate(params);
-      setEdges((eds) => addEdge(params, eds));
-    }
-  }, [addEdgeMutation, setEdges]);
 
   const handleNodeClick = useCallback((event: any, node: Node) => {
     onNodeSelect?.(parseInt(node.id));
@@ -154,9 +117,8 @@ function SupplyChainEditorContent({ onNodeSelect }: SupplyChainEditorProps) {
           nodes={nodes}
           edges={edges}
           nodeTypes={nodeTypes}
-          onNodesChange={handleNodesChange}
+          onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
-          onConnect={handleConnect}
           onNodeClick={handleNodeClick}
           onInit={setReactFlowInstance}
           proOptions={{ hideAttribution: true }}
