@@ -17,7 +17,7 @@ export default function SupplyChain() {
           {/* Sidebar content is handled by the layout component */}
         </div>
 
-        <div className="flex-1 relative overflow-hidden">
+        <div className="flex-1 relative p-0 overflow-hidden">
           <SupplyChainEditor onNodeSelect={setSelectedNode} />
         </div>
 

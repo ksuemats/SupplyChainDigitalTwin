@@ -1,4 +1,4 @@
-import { useCallback, useState, DragEvent, useEffect } from "react";
+import { useCallback, useState, DragEvent } from "react";
 import ReactFlow, {
   Background,
   Controls,
@@ -39,11 +39,6 @@ export function SupplyChainEditorContent({ onNodeSelect }: SupplyChainEditorProp
     select: (data) => transformToFlowEdges(data)
   });
 
-  useEffect(() => {
-    setNodes(apiNodes);
-    setEdges(apiEdges);
-  }, [apiNodes, apiEdges, setNodes, setEdges]);
-
   const onDragOver = useCallback((event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     event.dataTransfer.dropEffect = 'move';
@@ -69,15 +64,15 @@ export function SupplyChainEditorContent({ onNodeSelect }: SupplyChainEditorProp
       });
 
       const newNode = {
-        id: `test-${Date.now()}`,
+        id: `${type}-${Date.now()}`,
         type,
         position,
         data: {
-          name: `Test ${type}`,
-          location: 'Test Location',
-          capacity: 'Test Capacity',
-          region: 'Test Region',
-          market: 'Test Market'
+          name: `New ${type}`,
+          location: 'Location',
+          capacity: 'Capacity',
+          region: 'Region',
+          market: 'Market'
         }
       };
 
@@ -104,7 +99,11 @@ export function SupplyChainEditorContent({ onNodeSelect }: SupplyChainEditorProp
   }, [onNodeSelect]);
 
   return (
-    <div className="absolute inset-0" onDragOver={onDragOver} onDrop={onDrop}>
+    <div 
+      className="w-full h-full absolute inset-0 flex" // Added flex to parent
+      onDragOver={onDragOver} 
+      onDrop={onDrop}
+    >
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -115,7 +114,7 @@ export function SupplyChainEditorContent({ onNodeSelect }: SupplyChainEditorProp
         onNodeClick={handleNodeClick}
         onInit={setReactFlowInstance}
         proOptions={{ hideAttribution: true }}
-        style={{ width: '100%', height: '100%' }}
+        style={{ width: '100%', height: '100%' }} //Explicit width and height
         fitView
       >
         <Background />
