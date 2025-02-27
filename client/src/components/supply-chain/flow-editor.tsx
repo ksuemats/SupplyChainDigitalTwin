@@ -54,29 +54,19 @@ function SupplyChainEditorContent({ onNodeSelect }: SupplyChainEditorProps) {
       event.preventDefault();
 
       if (!reactFlowInstance) {
-        console.log('No flow instance available');
         return;
       }
 
       const type = event.dataTransfer.getData('application/reactflow');
       if (!type) {
-        console.log('No node type data found');
         return;
       }
 
       const bounds = event.currentTarget.getBoundingClientRect();
-      const clientX = event.clientX - bounds.left;
-      const clientY = event.clientY - bounds.top;
-
-      console.log('Drop coordinates:', { clientX, clientY });
-      console.log('Container bounds:', bounds);
-
       const position = reactFlowInstance.screenToFlowPosition({
-        x: clientX,
-        y: clientY,
+        x: event.clientX - bounds.left,
+        y: event.clientY - bounds.top,
       });
-
-      console.log('Calculated position:', position);
 
       const newNode = {
         id: `test-${Date.now()}`,
@@ -91,7 +81,6 @@ function SupplyChainEditorContent({ onNodeSelect }: SupplyChainEditorProps) {
         }
       };
 
-      console.log('Creating new node:', newNode);
       setNodes((nds) => nds.concat(newNode));
     },
     [reactFlowInstance, setNodes]
@@ -117,6 +106,13 @@ function SupplyChainEditorContent({ onNodeSelect }: SupplyChainEditorProps) {
   return (
     <div className="w-full h-full relative border rounded-lg bg-background/50 shadow-sm">
       <div className="absolute inset-0" onDragOver={onDragOver} onDrop={onDrop}>
+        {nodes.length === 0 && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <p className="text-muted-foreground text-sm">
+              Drag and drop components here to build your supply chain network
+            </p>
+          </div>
+        )}
         <ReactFlow 
           nodes={nodes}
           edges={edges}

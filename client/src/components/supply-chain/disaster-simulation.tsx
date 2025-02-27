@@ -14,48 +14,19 @@ import { AlertCircle } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 
-const DISASTER_TYPES = {
-  weather: "Natural Disaster",
-  supplier: "Critical Supplier Failure",
-  geopolitical: "Geopolitical Crisis",
-  logistics: "Logistics Disruption",
-  cyber: "Cybersecurity Incident",
-  financial: "Financial Crisis",
-  pandemic: "Health Crisis/Pandemic",
-  regulatory: "Regulatory Changes"
-} as const;
-
-const IMPACT_REGIONS = [
-  "North America",
-  "South America",
-  "Europe",
-  "Asia Pacific",
-  "Middle East",
-  "Africa",
-  "Global"
-];
-
-const DURATION_OPTIONS = [
-  "1-7 days",
-  "1-4 weeks",
-  "1-6 months",
-  "6-12 months"
-];
-
 interface DisasterSimulationProps {
   nodeId: number;
 }
 
 export function DisasterSimulation({ nodeId }: DisasterSimulationProps) {
-  const [selectedDisaster, setSelectedDisaster] = useState<string>();
-  const [selectedRegion, setSelectedRegion] = useState<string>("Global");
+  const [selectedDisaster, setSelectedDisaster] = useState<string>("Natural Disaster");
+  const [selectedRegion, setSelectedRegion] = useState<string>("North America");
   const [selectedDuration, setSelectedDuration] = useState<string>("1-7 days");
   const [magnitude, setMagnitude] = useState<number>(50);
   const queryClient = useQueryClient();
 
   const simulationMutation = useMutation({
     mutationFn: async () => {
-      if (!selectedDisaster) return;
       const res = await apiRequest(
         "POST", 
         `/api/nodes/${nodeId}/simulate-disaster`,
@@ -81,16 +52,12 @@ export function DisasterSimulation({ nodeId }: DisasterSimulationProps) {
       <CardContent className="space-y-6">
         <div className="space-y-2">
           <label className="text-sm font-medium">Type of Disaster</label>
-          <Select onValueChange={setSelectedDisaster}>
+          <Select value={selectedDisaster} onValueChange={setSelectedDisaster}>
             <SelectTrigger>
-              <SelectValue placeholder="Select disaster type" />
+              <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {Object.entries(DISASTER_TYPES).map(([value, label]) => (
-                <SelectItem key={value} value={value}>
-                  {label}
-                </SelectItem>
-              ))}
+              <SelectItem value="Natural Disaster">Natural Disaster</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -102,11 +69,7 @@ export function DisasterSimulation({ nodeId }: DisasterSimulationProps) {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {IMPACT_REGIONS.map((region) => (
-                <SelectItem key={region} value={region}>
-                  {region}
-                </SelectItem>
-              ))}
+              <SelectItem value="North America">North America</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -137,56 +100,56 @@ export function DisasterSimulation({ nodeId }: DisasterSimulationProps) {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {DURATION_OPTIONS.map((duration) => (
-                <SelectItem key={duration} value={duration}>
-                  {duration}
-                </SelectItem>
-              ))}
+              <SelectItem value="1-7 days">1-7 days</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
+        <div className="space-y-4">
+          <div className="bg-orange-50 rounded-lg p-4 space-y-3">
+            <h4 className="font-medium text-orange-900">Predicted Impact</h4>
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-orange-800">Supply Chain Disruption:</span>
+                <span className="font-medium text-orange-900">78%</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-orange-800">Revenue Impact:</span>
+                <span className="font-medium text-orange-900">-45%</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-orange-800">Recovery Time:</span>
+                <span className="font-medium text-orange-900">3-4 months</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <h4 className="font-medium text-sm">AI Mitigation Strategies</h4>
+            <ul className="space-y-2 text-sm">
+              <li className="flex gap-2 items-start">
+                <div className="h-2 w-2 rounded-full bg-blue-500 mt-1.5" />
+                <span>Establish backup suppliers in safe zones</span>
+              </li>
+              <li className="flex gap-2 items-start">
+                <div className="h-2 w-2 rounded-full bg-blue-500 mt-1.5" />
+                <span>Reroute through alternative logistics hubs</span>
+              </li>
+              <li className="flex gap-2 items-start">
+                <div className="h-2 w-2 rounded-full bg-blue-500 mt-1.5" />
+                <span>Increase buffer inventory by 25%</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
         <Button 
           className="w-full bg-primary font-medium"
-          disabled={!selectedDisaster || simulationMutation.isPending}
+          disabled={simulationMutation.isPending}
           onClick={() => simulationMutation.mutate()}
         >
           Run Simulation
         </Button>
-
-        {simulationMutation.data && (
-          <div className="space-y-6 pt-4">
-            <div className="bg-orange-50 rounded-lg p-4 space-y-3">
-              <h4 className="font-medium text-orange-900">Predicted Impact</h4>
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-orange-800">Supply Chain Disruption:</span>
-                  <span className="font-medium text-orange-900">78%</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-orange-800">Revenue Impact:</span>
-                  <span className="font-medium text-orange-900">-45%</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-orange-800">Recovery Time:</span>
-                  <span className="font-medium text-orange-900">3-4 months</span>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h4 className="font-medium mb-2">AI Mitigation Strategies</h4>
-              <ul className="space-y-2 text-sm">
-                {simulationMutation.data.mitigations.map((strategy: string, i: number) => (
-                  <li key={i} className="flex gap-2 items-start">
-                    <div className="h-2 w-2 rounded-full bg-blue-500 mt-1.5" />
-                    <span>{strategy}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        )}
       </CardContent>
     </Card>
   );
