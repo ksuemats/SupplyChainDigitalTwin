@@ -8,7 +8,8 @@ import ReactFlow, {
   addEdge,
   useNodesState,
   useEdgesState,
-  ReactFlowProvider
+  ReactFlowProvider,
+  type ReactFlowInstance
 } from "reactflow";
 import "reactflow/dist/style.css";
 import { nodeTypes } from "./node-types";
@@ -27,7 +28,7 @@ function SupplyChainEditorContent({ onNodeSelect }: SupplyChainEditorProps) {
   const queryClient = useQueryClient();
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
+  const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
 
   const { data: apiNodes = [] } = useQuery({
     queryKey: ["/api/nodes"],
@@ -43,7 +44,7 @@ function SupplyChainEditorContent({ onNodeSelect }: SupplyChainEditorProps) {
   useEffect(() => {
     setNodes(apiNodes);
     setEdges(apiEdges);
-  }, [apiNodes, apiEdges]);
+  }, [apiNodes, apiEdges, setNodes, setEdges]);
 
   const createNodeMutation = useMutation({
     mutationFn: async (node: { type: string, position: { x: number, y: number }, data: any }) => {
@@ -144,25 +145,27 @@ function SupplyChainEditorContent({ onNodeSelect }: SupplyChainEditorProps) {
   }, [onNodeSelect]);
 
   return (
-    <div className="w-full h-[80vh] relative border rounded-lg bg-background" >
+    <div className="w-full h-[80vh] relative border rounded-lg bg-background">
       <NodeCreationPanel />
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        nodeTypes={nodeTypes}
-        onNodesChange={handleNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={handleConnect}
-        onNodeClick={handleNodeClick}
-        onDragOver={onDragOver}
-        onDrop={onDrop}
-        onInit={setReactFlowInstance}
-        proOptions={{ hideAttribution: true }}
-        fitView
-      >
-        <Background />
-        <Controls />
-      </ReactFlow>
+      <div className="absolute inset-0">
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          nodeTypes={nodeTypes}
+          onNodesChange={handleNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={handleConnect}
+          onNodeClick={handleNodeClick}
+          onDragOver={onDragOver}
+          onDrop={onDrop}
+          onInit={setReactFlowInstance}
+          proOptions={{ hideAttribution: true }}
+          fitView
+        >
+          <Background />
+          <Controls />
+        </ReactFlow>
+      </div>
     </div>
   );
 }
