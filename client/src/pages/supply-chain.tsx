@@ -1,5 +1,6 @@
 import { SupplyChainEditor } from "@/components/supply-chain/flow-editor";
 import { RiskAnalysis } from "@/components/supply-chain/risk-analysis";
+import { DisasterSimulation } from "@/components/supply-chain/disaster-simulation";
 import { useState } from "react";
 
 export default function SupplyChain() {
@@ -15,8 +16,13 @@ export default function SupplyChain() {
         <div className="lg:col-span-2">
           <SupplyChainEditor onNodeSelect={setSelectedNode} />
         </div>
-        <div>
-          {selectedNode && <RiskAnalysis nodeId={selectedNode} />}
+        <div className="space-y-6">
+          {selectedNode && (
+            <>
+              <RiskAnalysis nodeId={selectedNode} />
+              <DisasterSimulation nodeId={selectedNode} />
+            </>
+          )}
         </div>
       </div>
     </div>

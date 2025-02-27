@@ -86,5 +86,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post("/api/nodes/:nodeId/simulate-disaster", async (req, res) => {
+    const nodeId = parseInt(req.params.nodeId);
+    const { disasterType } = req.body;
+
+    if (!disasterType) {
+      return res.status(400).json({ error: "Disaster type is required" });
+    }
+
+    const node = await storage.getNode(nodeId);
+    if (!node) {
+      return res.status(404).json({ error: "Node not found" });
+    }
+
+    try {
+      const impact = await simulateDisasterImpact(node, disasterType);
+      res.json(impact);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to simulate disaster impact" });
+    }
+  });
+
   return httpServer;
 }
