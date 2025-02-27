@@ -13,7 +13,6 @@ import ReactFlow, {
 } from "reactflow";
 import "reactflow/dist/style.css";
 import { nodeTypes } from "./node-types";
-import { NodeCreationPanel } from "./node-creation-panel";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { transformToFlowNodes, transformToFlowEdges } from "@/lib/supply-chain";
@@ -116,10 +115,9 @@ function SupplyChainEditorContent({ onNodeSelect }: SupplyChainEditorProps) {
   }, [onNodeSelect]);
 
   return (
-    <div className="w-full h-[80vh] relative border rounded-lg bg-background">
-      <NodeCreationPanel />
+    <div className="w-full h-full relative border rounded-lg bg-background/50 shadow-sm">
       <div className="absolute inset-0" onDragOver={onDragOver} onDrop={onDrop}>
-        <ReactFlow
+        <ReactFlow 
           nodes={nodes}
           edges={edges}
           nodeTypes={nodeTypes}
@@ -139,7 +137,6 @@ function SupplyChainEditorContent({ onNodeSelect }: SupplyChainEditorProps) {
   );
 }
 
-// Wrap the editor with ReactFlowProvider
 export function SupplyChainEditor(props: SupplyChainEditorProps) {
   return (
     <ReactFlowProvider>
