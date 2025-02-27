@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState, DragEvent } from "react";
 import ReactFlow, {
   Background,
   Controls,
@@ -26,13 +26,14 @@ export function SupplyChainEditor({ onNodeSelect }: SupplyChainEditorProps) {
   const queryClient = useQueryClient();
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
 
-  const { data: apiNodes = [] } = useQuery<Node[]>({
+  const { data: apiNodes = [] } = useQuery({
     queryKey: ["/api/nodes"],
     select: (data) => transformToFlowNodes(data)
   });
 
-  const { data: apiEdges = [] } = useQuery<Edge[]>({
+  const { data: apiEdges = [] } = useQuery({
     queryKey: ["/api/edges"],
     select: (data) => transformToFlowEdges(data)
   });
@@ -82,26 +83,41 @@ export function SupplyChainEditor({ onNodeSelect }: SupplyChainEditorProps) {
     }
   });
 
-  const handleCreateNode = useCallback((type: string) => {
-    const position = {
-      x: Math.random() * 500,
-      y: Math.random() * 500
-    };
+  const onDragOver = useCallback((event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+  }, []);
 
-    const nodeData = {
-      name: `New ${type}`,
-      location: 'Location',
-      capacity: 'Capacity',
-      region: 'Region',
-      market: 'Market'
-    };
+  const onDrop = useCallback(
+    (event: DragEvent<HTMLDivElement>) => {
+      event.preventDefault();
 
-    createNodeMutation.mutate({
-      type,
-      position,
-      data: nodeData
-    });
-  }, [createNodeMutation]);
+      if (!reactFlowInstance) return;
+
+      const type = event.dataTransfer.getData('application/reactflow');
+      if (!type) return;
+
+      const position = reactFlowInstance.screenToFlowPosition({
+        x: event.clientX,
+        y: event.clientY,
+      });
+
+      const nodeData = {
+        name: `New ${type}`,
+        location: 'Location',
+        capacity: 'Capacity',
+        region: 'Region',
+        market: 'Market'
+      };
+
+      createNodeMutation.mutate({
+        type,
+        position,
+        data: nodeData
+      });
+    },
+    [reactFlowInstance, createNodeMutation]
+  );
 
   const handleNodesChange = useCallback((changes: any) => {
     const positionChange = changes.find((change: any) => change.type === "position");
@@ -127,7 +143,7 @@ export function SupplyChainEditor({ onNodeSelect }: SupplyChainEditorProps) {
 
   return (
     <div className="w-full h-[80vh] relative border rounded-lg">
-      <NodeCreationPanel onCreateNode={handleCreateNode} />
+      <NodeCreationPanel />
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -136,6 +152,9 @@ export function SupplyChainEditor({ onNodeSelect }: SupplyChainEditorProps) {
         onEdgesChange={onEdgesChange}
         onConnect={handleConnect}
         onNodeClick={handleNodeClick}
+        onDragOver={onDragOver}
+        onDrop={onDrop}
+        onInit={setReactFlowInstance}
         fitView
       >
         <Background />
