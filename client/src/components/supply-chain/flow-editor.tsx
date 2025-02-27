@@ -104,7 +104,7 @@ export function SupplyChainEditorContent({ onNodeSelect }: SupplyChainEditorProp
   }, [onNodeSelect]);
 
   return (
-    <div className="absolute inset-0">
+    <div className="absolute inset-0" onDragOver={onDragOver} onDrop={onDrop}>
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -115,6 +115,7 @@ export function SupplyChainEditorContent({ onNodeSelect }: SupplyChainEditorProp
         onNodeClick={handleNodeClick}
         onInit={setReactFlowInstance}
         proOptions={{ hideAttribution: true }}
+        style={{ width: '100%', height: '100%' }}
         fitView
       >
         <Background />
@@ -128,21 +129,6 @@ export function SupplyChainEditorContent({ onNodeSelect }: SupplyChainEditorProp
           </p>
         </div>
       )}
-
-      <div 
-        className="absolute inset-0 pointer-events-none"
-        onDragOver={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          (e.target as HTMLDivElement).classList.add('drag-over');
-        }}
-        onDragLeave={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          (e.target as HTMLDivElement).classList.remove('drag-over');
-        }}
-        onDrop={onDrop}
-      />
     </div>
   );
 }
