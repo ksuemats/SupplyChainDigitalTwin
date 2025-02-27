@@ -17,7 +17,7 @@ export function setupWebSocket(server: Server) {
         sendMetrics(ws);
         console.log('Sent metric update');
       }
-    }, 5000); // Update every 5 seconds
+    }, 8080); // Update every 5 seconds
 
     ws.on('close', () => {
       clearInterval(interval);

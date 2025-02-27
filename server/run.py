@@ -5,7 +5,7 @@ import time
 import os
 
 def run_frontend():
-    os.environ['PORT'] = '5000'  # Set frontend port
+    os.environ['PORT'] = '8080'  # Set frontend port
     subprocess.run(["npm", "run", "dev"], check=True)
 
 def run_backend():

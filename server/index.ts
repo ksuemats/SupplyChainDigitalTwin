@@ -44,7 +44,7 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  const port = 5000; 
+  const port = 8080; 
   app.listen(port, "0.0.0.0", () => {
     log(`Vite frontend serving on port ${port}`);
   });
