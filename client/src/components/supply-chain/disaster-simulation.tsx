@@ -27,6 +27,9 @@ export function DisasterSimulation({ nodeId }: DisasterSimulationProps) {
 
   const simulationMutation = useMutation({
     mutationFn: async () => {
+      if (!nodeId) {
+        throw new Error("Please select a node to simulate disaster impact");
+      }
       const res = await apiRequest(
         "POST", 
         `/api/nodes/${nodeId}/simulate-disaster`,
@@ -145,7 +148,7 @@ export function DisasterSimulation({ nodeId }: DisasterSimulationProps) {
 
         <Button 
           className="w-full bg-primary font-medium"
-          disabled={simulationMutation.isPending}
+          disabled={!nodeId || simulationMutation.isPending}
           onClick={() => simulationMutation.mutate()}
         >
           Run Simulation

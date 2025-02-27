@@ -22,12 +22,8 @@ export default function SupplyChain() {
         </div>
 
         <div className="space-y-6">
-          {selectedNode && (
-            <>
-              <DisasterSimulation nodeId={selectedNode} />
-              <RiskAnalysis nodeId={selectedNode} />
-            </>
-          )}
+          <DisasterSimulation nodeId={selectedNode || 0} />
+          {selectedNode && <RiskAnalysis nodeId={selectedNode} />}
         </div>
       </div>
     </div>
