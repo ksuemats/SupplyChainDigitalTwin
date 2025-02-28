@@ -71,7 +71,7 @@ export function DisasterSimulation({ className, onClose }: DisasterSimulationPro
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Natural Disaster">Natural Disaster</SelectItem>
+                  <SelectItem value="Natural Disaster">Earth Quake</SelectItem>
                   {/* Add more disaster types here */}
                 </SelectContent>
               </Select>
@@ -84,7 +84,7 @@ export function DisasterSimulation({ className, onClose }: DisasterSimulationPro
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="North America">North America</SelectItem>
+                  <SelectItem value="North America">San Jose</SelectItem>
                   {/* Add more regions here */}
                 </SelectContent>
               </Select>

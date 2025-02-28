@@ -11,6 +11,7 @@ router = APIRouter()
 @router.get("/nodes", response_model=List[Node])
 async def get_nodes():
     """Get all supply chain nodes"""
+    print("Neo4J get")
     db = Neo4jConnection.get_instance()
     session = db.get_session()
 
@@ -33,6 +34,7 @@ async def get_nodes():
 @router.post("/nodes", response_model=Node, status_code=status.HTTP_201_CREATED)
 async def create_node(node: Node):
     """Create a new supply chain node"""
+    print("Neo4J post")
     db = Neo4jConnection.get_instance()
     session = db.get_session()
 
@@ -54,6 +56,7 @@ async def create_node(node: Node):
                 "data": node.data
             }
         )
+        print("Creates Node")
         created_node = result.single()["n"]
         return Node(
             id=created_node.id,
@@ -72,6 +75,7 @@ async def create_node(node: Node):
 
 @router.get("/edges", response_model=List[Edge])
 async def get_edges():
+    print("Neo4J get edges")
     """Get all supply chain edges"""
     db = Neo4jConnection.get_instance()
     session = db.get_session()
@@ -99,6 +103,7 @@ async def get_edges():
 @router.post("/edges", response_model=Edge, status_code=status.HTTP_201_CREATED)
 async def create_edge(edge: Edge):
     """Create a new supply chain edge"""
+    print("Neo4J edges post")
     db = Neo4jConnection.get_instance()
     session = db.get_session()
 
@@ -139,7 +144,9 @@ async def create_edge(edge: Edge):
 
 @router.delete("/nodes/{node_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_node(node_id: int):
+    print("Neo4J node delete")
     """Delete a supply chain node"""
+    print("Deletes Node")
     db = Neo4jConnection.get_instance()
     session = db.get_session()
     try:
@@ -161,6 +168,7 @@ async def delete_node(node_id: int):
 @router.delete("/edges/{edge_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_edge(edge_id: int):
     """Delete a supply chain edge"""
+    print("Neo4J edge delete")
     db = Neo4jConnection.get_instance()
     session = db.get_session()
     try:

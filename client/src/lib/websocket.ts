@@ -63,13 +63,25 @@ interface MetricsStore {
 
 export const useMetricsStore = create<MetricsStore>((set) => ({
   metrics: {
-    totalNodes: 0,
-    activeNodes: 0,
-    averageRiskScore: 0,
-    throughput: 0,
-    bottlenecks: 0,
-    delayedShipments: 0,
-    riskTrend: []
+    totalNodes: 50,
+    activeNodes: 23,
+    averageRiskScore: 76,
+    throughput: 10,
+    bottlenecks: 12,
+    delayedShipments: 12,
+    riskTrend: [
+      { "timestamp": "2025-02-27T09:00:00Z", "riskScore": 25.0 },
+      { "timestamp": "2025-02-27T09:05:00Z", "riskScore": 28.0 },
+      { "timestamp": "2025-02-27T09:10:00Z", "riskScore": 34.2 },
+      { "timestamp": "2025-02-27T09:15:00Z", "riskScore": 43.0 },
+      { "timestamp": "2025-02-27T09:20:00Z", "riskScore": 45.0 },
+      { "timestamp": "2025-02-27T09:25:00Z", "riskScore": 54.0 },
+      { "timestamp": "2025-02-27T09:30:00Z", "riskScore": 78.0 },
+      { "timestamp": "2025-02-27T09:35:00Z", "riskScore": 80.0 },
+      { "timestamp": "2025-02-27T09:40:00Z", "riskScore": 90.0 },
+      { "timestamp": "2025-02-27T09:45:00Z", "riskScore": 101.0 }
+
+    ]
   },
   updateMetrics: (data) => {
     console.log('Updating metrics with:', data)

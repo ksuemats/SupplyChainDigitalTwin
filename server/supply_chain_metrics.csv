@@ -1,0 +1,51 @@
+ID,Name,Type,Region,Active,RiskScore,Bottleneck,Throughput,DelayedShipments,Health,Timestamp
+1,Store #101,Store,Midwest,TRUE,2.5,No,180,2,95.0,2025-02-27 09:00
+2,Distribution Center #A,Distribution,West,TRUE,3.0,No,220,0,98.0,2025-02-27 09:00
+3,Supplier S-1,Supplier,South,TRUE,4.2,No,150,3,92.0,2025-02-27 09:00
+4,Store #102,Store,West,TRUE,1.0,No,200,1,99.0,2025-02-27 09:00
+5,Transport Hub T1,Transport,Midwest,TRUE,2.0,No,250,0,96.0,2025-02-27 09:00
+6,Supplier S-2,Supplier,East,TRUE,6.5,Yes,120,5,88.0,2025-02-27 09:00
+7,Distribution Center #B,Distribution,South,TRUE,2.8,No,230,2,93.0,2025-02-27 09:00
+8,Store #103,Store,East,TRUE,0.5,No,210,0,99.0,2025-02-27 09:00
+9,Supplier S-3,Supplier,Midwest,TRUE,3.2,No,140,1,94.0,2025-02-27 09:00
+10,Transport Hub T2,Transport,West,TRUE,2.1,No,260,2,95.0,2025-02-27 09:00
+11,Store #104,Store,South,TRUE,1.5,No,190,1,97.0,2025-02-27 09:00
+12,Distribution Center #C,Distribution,East,TRUE,4.8,Yes,200,3,90.0,2025-02-27 09:00
+13,Supplier S-4,Supplier,West,TRUE,3.0,No,100,4,91.0,2025-02-27 09:00
+14,Store #105,Store,Midwest,TRUE,1.2,No,170,0,98.0,2025-02-27 09:00
+15,Transport Hub T3,Transport,South,TRUE,2.9,No,270,3,94.0,2025-02-27 09:00
+16,Supplier S-5,Supplier,East,TRUE,5.5,Yes,90,6,85.0,2025-02-27 09:00
+17,Distribution Center #D,Distribution,West,TRUE,2.0,No,210,2,96.0,2025-02-27 09:00
+18,Store #106,Store,East,TRUE,0.8,No,220,0,99.0,2025-02-27 09:00
+19,Supplier S-6,Supplier,Midwest,TRUE,2.7,No,130,2,93.0,2025-02-27 09:00
+20,Transport Hub T4,Transport,East,TRUE,3.1,No,255,1,97.0,2025-02-27 09:00
+21,Store #107,Store,West,TRUE,4.2,Yes,180,3,91.0,2025-02-27 09:00
+22,Distribution Center #E,Distribution,Midwest,TRUE,2.4,No,240,2,95.0,2025-02-27 09:00
+23,Supplier S-7,Supplier,South,TRUE,6.0,Yes,110,7,80.0,2025-02-27 09:00
+24,Store #108,Store,South,TRUE,1.1,No,200,1,99.0,2025-02-27 09:00
+25,Transport Hub T5,Transport,Midwest,TRUE,2.2,No,270,2,96.0,2025-02-27 09:00
+26,Supplier S-8,Supplier,West,TRUE,3.8,No,150,2,92.0,2025-02-27 09:00
+27,Distribution Center #F,Distribution,East,TRUE,2.6,No,225,3,94.0,2025-02-27 09:00
+28,Store #109,Store,Midwest,TRUE,0.7,No,210,0,99.0,2025-02-27 09:00
+29,Supplier S-9,Supplier,East,TRUE,4.5,Yes,100,5,88.0,2025-02-27 09:00
+30,Transport Hub T6,Transport,South,TRUE,2.3,No,265,1,95.0,2025-02-27 09:00
+31,Store #110,Store,West,TRUE,1.0,No,190,0,98.0,2025-02-27 09:00
+32,Distribution Center #G,Distribution,South,TRUE,2.9,No,220,2,93.0,2025-02-27 09:00
+33,Supplier S-10,Supplier,Midwest,TRUE,5.8,Yes,80,8,78.0,2025-02-27 09:00
+34,Store #111,Store,East,TRUE,1.3,No,210,1,97.0,2025-02-27 09:00
+35,Transport Hub T7,Transport,Midwest,TRUE,2.1,No,275,2,96.0,2025-02-27 09:00
+36,Supplier S-11,Supplier,West,TRUE,3.4,No,140,1,92.0,2025-02-27 09:00
+37,Distribution Center #H,Distribution,Midwest,TRUE,2.7,No,230,3,94.0,2025-02-27 09:00
+38,Store #112,Store,South,TRUE,0.9,No,200,0,99.0,2025-02-27 09:00
+39,Supplier S-12,Supplier,East,TRUE,6.1,Yes,90,6,84.0,2025-02-27 09:00
+40,Transport Hub T8,Transport,West,TRUE,2.4,No,260,1,95.0,2025-02-27 09:00
+41,Store #113,Store,Midwest,TRUE,1.6,No,180,2,96.0,2025-02-27 09:00
+42,Distribution Center #I,Distribution,South,TRUE,3.2,No,215,2,93.0,2025-02-27 09:00
+43,Supplier S-13,Supplier,Midwest,TRUE,5.2,Yes,110,4,89.0,2025-02-27 09:00
+44,Store #114,Store,East,TRUE,1.4,No,205,1,98.0,2025-02-27 09:00
+45,Transport Hub T9,Transport,South,TRUE,3.0,No,255,3,94.0,2025-02-27 09:00
+46,Supplier S-14,Supplier,West,TRUE,4.1,No,130,2,91.0,2025-02-27 09:00
+47,Distribution Center #J,Distribution,East,TRUE,2.5,No,235,1,95.0,2025-02-27 09:00
+48,Store #115,Store,West,TRUE,1.7,No,190,1,97.0,2025-02-27 09:00
+49,Supplier S-15,Supplier,Midwest,TRUE,6.3,Yes,75,9,76.0,2025-02-27 09:00
+50,Transport Hub T10,Transport,East,TRUE,2.2,No,270,2,95.0,2025-02-27 09:00

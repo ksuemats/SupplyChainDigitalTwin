@@ -69,9 +69,9 @@ export function SupplyChainEditorContent({ onNodeSelect }: SupplyChainEditorProp
         position,
         data: {
           name: `New ${type}`,
-          location: 'Location',
-          capacity: 'Capacity',
-          region: 'Region',
+          location: 'San Jose',
+          capacity: '30000',
+          region: 'North',
           market: 'Market'
         }
       };

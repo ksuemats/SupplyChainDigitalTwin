@@ -18,6 +18,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     if (!result.success) {
       return res.status(400).json({ error: result.error });
     }
+    
     const node = await storage.createNode(result.data);
     res.json(node);
   });
